@@ -1,424 +1,535 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#050505">
-<title>Uday Thakur | 3D Web Creator Portfolio</title>
-<style>
-:root{
-  --bg:#050505;--panel:#0b0b0d;--panel2:#111114;--text:#f5f5f5;
-  --muted:#929296;--orange:#ff5a00;--orange2:#ff7a18;--line:#26262b;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;background:var(--bg)}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:
-radial-gradient(circle at 75% 10%,rgba(255,90,0,.08),transparent 28%),
-var(--bg);color:var(--text);overflow-x:hidden}
-a{color:inherit;text-decoration:none}
-button{font:inherit}
-.container{width:min(1180px,calc(100% - 36px));margin:auto}
-header{position:fixed;z-index:50;top:0;left:0;right:0;height:76px;
-background:rgba(5,5,5,.72);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{height:100%;display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:900;letter-spacing:.04em;font-size:25px}.logo i{font-style:normal;color:var(--orange)}
-nav{display:flex;gap:26px;color:#aaa;font-size:13px}nav a{transition:.25s}nav a:hover{color:white}
-.nav-btn{border:1px solid var(--orange);color:var(--orange);padding:11px 18px;border-radius:999px;font-weight:800;background:transparent}
-.menu{display:none;background:none;border:0;color:white;font-size:28px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050505">
 
-section{position:relative;padding:110px 0}
-.hero{min-height:100vh;padding-top:130px;display:grid;grid-template-columns:.9fr 1.1fr;gap:42px;align-items:center}
-.kicker{color:var(--orange);font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:22px}
-.hero h1{font-size:clamp(48px,7vw,92px);line-height:.9;letter-spacing:-.055em}
-.hero h1 span{color:var(--orange);display:block}
-.hero p{max-width:590px;color:#aaa;font-size:18px;line-height:1.75;margin:28px 0}
-.actions{display:flex;gap:13px;flex-wrap:wrap}
-.btn{padding:15px 22px;border-radius:12px;font-weight:900;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center}
-.btn.primary{background:var(--orange);box-shadow:0 0 35px rgba(255,90,0,.25);color:#fff;border-color:var(--orange)}
-.btn.secondary{background:#111113}
+  <title>Uday Thakur | 3D Web Creator</title>
 
-.avatar-wrap{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-.avatar{width:76px;height:76px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--orange),#333);
-box-shadow:0 0 35px rgba(255,90,0,.28);animation:float 4s ease-in-out infinite}
-.avatar img{width:100%;height:100%;object-fit:cover;object-position:center 18%;border-radius:50%}
-.badge{background:#151518;border:1px solid #29292e;border-radius:10px;padding:12px 16px;font-weight:900;letter-spacing:.08em}
-
-.scene-card{height:540px;border:1px solid #29292e;border-radius:24px;background:
-radial-gradient(circle at 50% 45%,#15151a 0%,#09090b 52%,#050505 100%);
-overflow:hidden;position:relative;box-shadow:inset 0 0 80px rgba(255,255,255,.02)}
-.scene-card canvas{width:100%;height:100%;display:block;touch-action:none}
-.scene-label{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);white-space:nowrap;
-padding:10px 16px;border:1px solid #29292e;background:rgba(3,3,4,.78);border-radius:999px;color:#aaa;font-size:13px;pointer-events:none}
-.scene-label b{color:#ddd}
-
-.section-head{text-align:center;margin-bottom:52px}
-.eyebrow{color:var(--orange);font-weight:900;letter-spacing:.1em;text-transform:uppercase;font-size:13px}
-.section-head h2{font-size:clamp(38px,6vw,66px);letter-spacing:-.045em;margin:10px 0}
-.section-head h2 span{color:var(--orange)}
-.section-head p{color:#929296;font-size:17px}
-
-.about-grid,.skills-grid,.projects-grid,.journey-grid{display:grid;gap:20px}
-.about-grid{grid-template-columns:1.1fr .9fr}
-.card{background:linear-gradient(145deg,#111114,#09090b);border:1px solid #29292e;border-radius:22px;padding:30px}
-.card h3{font-size:25px;color:var(--orange);margin-bottom:14px}
-.card p,.card li{color:#aaa;line-height:1.8}
-.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
-.pill{padding:9px 12px;border:1px solid #303035;border-radius:999px;color:#ddd;background:#0d0d0f;font-size:13px}
-
-.cube-section{display:grid;grid-template-columns:.8fr 1.2fr;gap:35px;align-items:center}
-.cube-scene{height:470px;border:1px solid #29292e;border-radius:24px;background:#070709;overflow:hidden}
-.cube-scene canvas{width:100%;height:100%;display:block;touch-action:none}
-
-.skills-grid{grid-template-columns:repeat(3,1fr)}
-.skill h3{font-size:19px;color:white}.skill .bar{height:5px;background:#222;border-radius:20px;margin-top:15px;overflow:hidden}
-.skill .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ff9b52);width:var(--w)}
-
-.project{overflow:hidden;padding:0}
-.project-preview{height:310px;background:#070709;border-bottom:1px solid #29292e;position:relative;perspective:900px}
-.browser{position:absolute;width:76%;height:70%;left:12%;top:15%;background:#111;border:1px solid #4a4a4f;border-radius:14px;
-box-shadow:0 35px 60px rgba(0,0,0,.55);transform:rotateX(5deg) rotateY(-9deg);transition:.5s}
-.project:hover .browser{transform:rotateX(0) rotateY(0) translateY(-8px)}
-.browser-top{height:27px;border-bottom:1px solid #333;display:flex;align-items:center;gap:6px;padding:0 10px}
-.dot{width:7px;height:7px;border-radius:50%;background:#555}.dot:first-child{background:#ff5a00}
-.mock{height:calc(100% - 27px);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;
-background:radial-gradient(circle at 50% 0,rgba(255,90,0,.16),transparent 55%)}
-.mock h4{font-size:24px}.mock small{display:block;color:#aaa;margin-top:8px}
-.project-body{padding:27px}.project-body h3{font-size:26px}.project-body p{color:#999;line-height:1.7;margin:10px 0 18px}
-
-.journey-grid{grid-template-columns:repeat(4,1fr)}
-.journey .num{font-size:12px;color:var(--orange);font-weight:900}.journey h3{margin:9px 0}.journey p{font-size:14px}
-
-.tech-wrap{display:grid;grid-template-columns:1fr 1fr;gap:25px}
-.phone-scene,.laptop-scene{height:560px;border:1px solid #29292e;border-radius:24px;background:#070709;overflow:hidden}
-.phone-scene canvas,.laptop-scene canvas{width:100%;height:100%;display:block;touch-action:none}
-
-.contact{background:linear-gradient(180deg,transparent,#0a0705)}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.contact-info h2{font-size:clamp(40px,6vw,70px);line-height:.95}.contact-info h2 span{color:var(--orange)}
-.contact-info p{color:#999;line-height:1.8;margin:22px 0}
-.contact-line{padding:17px 0;border-bottom:1px solid #25252a;color:#bbb}.contact-line b{display:block;color:white;margin-bottom:5px}
-form{display:grid;gap:13px}.input{width:100%;background:#0e0e11;border:1px solid #29292e;border-radius:12px;color:white;padding:15px;outline:none}
-.input:focus{border-color:var(--orange)}textarea.input{min-height:150px;resize:vertical}
-
-footer{padding:38px 0;border-top:1px solid #222;color:#777}.footer-row{display:flex;justify-content:space-between;gap:20px}.footer-row strong{color:white}
-
-.chat{position:fixed;z-index:60;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:#20d86b;
-color:#07150c;display:grid;place-items:center;font-size:28px;box-shadow:0 0 35px rgba(32,216,107,.25)}
-
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}.reveal.show{opacity:1;transform:none}
-@keyframes float{50%{transform:translateY(-8px)}}
-@media(max-width:900px){
-  nav{display:none}.nav-btn{display:none}.menu{display:block}
-  .hero{grid-template-columns:1fr;padding-top:120px}.hero-copy{order:1}.hero-visual{order:2}
-  .scene-card{height:430px}.about-grid,.cube-section,.contact-grid,.tech-wrap{grid-template-columns:1fr}
-  .skills-grid{grid-template-columns:1fr 1fr}.journey-grid{grid-template-columns:1fr 1fr}
-}
-@media(max-width:600px){
-  .container{width:min(100% - 24px,1180px)}
-  section{padding:82px 0}.hero{min-height:auto;padding-top:112px;gap:26px}
-  .hero h1{font-size:54px}.hero p{font-size:16px;line-height:1.65}
-  .avatar{width:66px;height:66px}.badge{font-size:12px}
-  .scene-card{height:390px;border-radius:18px}
-  .skills-grid,.journey-grid{grid-template-columns:1fr}
-  .cube-scene,.phone-scene,.laptop-scene{height:440px;border-radius:18px}
-  .project-preview{height:260px}.browser{width:88%;left:6%}
-  .card{padding:23px}.chat{width:56px;height:56px;right:14px;bottom:14px}
-}
-</style>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header>
-  <div class="container nav">
-    <a class="logo" href="#home">UDAY<span>.</span></a>
-    <nav>
-      <a href="#home">Home</a><a href="#about">About</a><a href="#skills">Skills</a>
-      <a href="#projects">Projects</a><a href="#journey">Journey</a><a href="#contact">Contact</a>
-    </nav>
-    <a class="nav-btn" href="#contact">LET'S TALK</a>
-    <button class="menu" aria-label="menu">☰</button>
-  </div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">UDAY<span>.</span></div>
+  <div class="loader-line"></div>
+</div>
+
+<!-- HEADER -->
+<header class="navbar">
+
+  <a href="#home" class="logo">
+    UDAY<span>.</span>
+  </a>
+
+  <nav id="navMenu">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#tech">3D Tech</a>
+    <a href="#projects">Projects</a>
+    <a href="#journey">Journey</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <a href="#contact" class="talk-btn">
+    LET'S TALK
+  </a>
+
+  <button id="menuBtn" class="menu-btn">
+    ☰
+  </button>
+
 </header>
 
-<main>
-<section id="home" class="hero container">
-  <div class="hero-copy reveal">
-    <div class="kicker">⚡ Currently Learning • Building With AI • Growing Every Day</div>
-    <div class="avatar-wrap">
-      <div class="avatar"><img src="assets/uday.jpg" alt="Uday Thakur"></div>
-      <div class="badge">UDAY / CREATOR</div>
-    </div>
-    <h1>UDAY <span>THAKUR</span></h1>
-    <p>I’m learning web development and using AI to turn ideas into interactive 3D digital experiences.</p>
-    <div class="actions">
-      <a class="btn primary" href="#projects">View Projects ↗</a>
-      <a class="btn secondary" href="#contact">Contact Me</a>
-    </div>
-  </div>
-  <div class="hero-visual reveal">
-    <div class="scene-card" id="heroLaptop"></div>
-    <div class="scene-label">💻 <b>Realistic 3D Laptop</b> • Touch &amp; Drag to rotate</div>
-  </div>
-</section>
 
-<section id="about">
-  <div class="container">
-    <div class="section-head reveal"><div class="eyebrow">01 / About</div><h2>WHO I <span>AM</span></h2><p>Honest beginner. Serious about becoming a developer.</p></div>
-    <div class="about-grid">
-      <div class="card reveal">
-        <h3>My Story</h3>
-        <p>Hi! I am Uday Thakur. I am currently pursuing O Level computer courses and continuously expanding my skills in modern web development. I use AI tools to learn faster, experiment with ideas and build real websites.</p>
-        <div class="pills"><span class="pill">Beginner Developer</span><span class="pill">AI-Assisted Builder</span><span class="pill">2 Websites Built</span></div>
+<!-- ================= HERO ================= -->
+
+<section id="home" class="hero">
+
+  <div class="hero-content reveal">
+
+    <div class="status">
+      ⚡ CURRENTLY LEARNING • BUILDING WITH AI
+    </div>
+
+    <div class="identity">
+
+      <div class="avatar">
+        <img src="assets/uday.jpg" alt="Uday Thakur">
       </div>
-      <div class="card reveal">
-        <h3>Education</h3>
-        <p><b>10th &amp; 12th Pass</b><br>Currently learning O Level + Web Development.</p>
-        <div class="pills"><span class="pill">HTML</span><span class="pill">CSS</span><span class="pill">JavaScript</span><span class="pill">Responsive Design</span></div>
+
+      <div class="creator-tag">
+        UDAY / CREATOR
+      </div>
+
+    </div>
+
+    <h1>
+      UDAY
+      <br>
+      <span>THAKUR</span>
+    </h1>
+
+    <p>
+      I’m learning web development and using AI to turn ideas
+      into interactive digital experiences.
+    </p>
+
+    <div class="hero-buttons">
+
+      <a href="#projects" class="primary-btn">
+        View Projects ↗
+      </a>
+
+      <a href="#contact" class="secondary-btn">
+        Contact Me
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <!-- HERO LAPTOP -->
+
+  <div class="three-stage hero-laptop reveal">
+
+    <canvas id="heroLaptop"></canvas>
+
+    <div class="interaction-hint">
+      💻 Touch & Drag to rotate
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= ABOUT ================= -->
+
+<section id="about" class="section">
+
+  <div class="section-heading reveal">
+    ABOUT <span>ME</span>
+  </div>
+
+  <div class="about-box reveal">
+
+    <div>
+
+      <h2>Who I Am</h2>
+
+      <p>
+        Hi! I am <strong>Uday Thakur.</strong>
+        I am currently pursuing O Level computer courses
+        and continuously expanding my skills in modern
+        Web Development.
+      </p>
+
+      <p>
+        I use modern AI tools to turn ideas into websites,
+        interactive designs and 3D digital experiences.
+      </p>
+
+    </div>
+
+    <div class="about-stats">
+
+      <strong>02+</strong>
+      <small>WEB PROJECTS</small>
+
+      <strong>O LEVEL</strong>
+      <small>CURRENTLY LEARNING</small>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= SKILLS ================= -->
+
+<section id="skills" class="section">
+
+  <div class="section-heading reveal">
+    SKILLS <span>& LEARNING</span>
+  </div>
+
+  <div class="skill-grid">
+
+    <div class="skill-card reveal">
+      <small>LEARNING</small>
+      <h3>HTML • CSS • JavaScript</h3>
+      <p>
+        Web structure, responsive layouts,
+        interfaces and modern web fundamentals.
+      </p>
+    </div>
+
+    <div class="skill-card reveal">
+      <small>WORKING WITH</small>
+      <h3>AI • Acode • GitHub</h3>
+      <p>
+        AI-assisted coding, design exploration
+        and real project building.
+      </p>
+    </div>
+
+    <div class="skill-card reveal">
+      <small>LEARNING NEXT</small>
+      <h3>Three.js • React • Backend</h3>
+      <p>
+        Growing toward advanced interactive
+        web development.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= 3D TECH ================= -->
+
+<section id="tech" class="section tech-section">
+
+  <div class="section-heading reveal">
+    INTERACTIVE <span>3D TECH</span>
+  </div>
+
+  <p class="section-subtitle reveal">
+    Ultra-realistic slim devices • 360° Interactive
+  </p>
+
+
+  <!-- LAPTOP -->
+
+  <div class="device-section reveal">
+
+    <h2>
+      HD <span>LAPTOP</span>
+    </h2>
+
+    <p>
+      Ultra-realistic slim laptop
+    </p>
+
+    <div class="three-stage">
+
+      <canvas id="techLaptop"></canvas>
+
+      <div class="interaction-hint">
+        💻 Touch & Drag to rotate
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- MOBILE -->
+
+  <div class="device-section reveal">
+
+    <h2>
+      SLIM <span>SMARTPHONE</span>
+    </h2>
+
+    <p>
+      Ultra-realistic slim smartphone
+    </p>
+
+    <div class="three-stage phone-stage">
+
+      <canvas id="phone"></canvas>
+
+      <div class="interaction-hint">
+        📱 Touch & Drag to rotate
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- CUBE -->
+
+  <div class="device-section reveal">
+
+    <h2>
+      3D <span>CODE CUBE</span>
+    </h2>
+
+    <p>
+      HTML • CSS • JS • AI • UI • WEB
+    </p>
+
+    <div class="three-stage cube-stage">
+
+      <canvas id="cube"></canvas>
+
+      <div class="interaction-hint">
+        🧊 Touch & Drag to rotate
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= PROJECTS ================= -->
+
+<section id="projects" class="section">
+
+  <div class="section-heading reveal">
+    FEATURED <span>PROJECTS</span>
+  </div>
+
+  <div class="project-grid">
+
+
+    <article class="project-card reveal">
+
+      <div class="browser">
+
+        <div class="browser-bar">
+          <i></i>
+          <i></i>
+          <i></i>
+          <span>abhay-aura</span>
+        </div>
+
+        <div class="project-screen aura">
+          ABHAY AURA
+          <small>SALON • SPA • BOOKING</small>
+        </div>
+
+      </div>
+
+      <h3>Abhay Aura</h3>
+
+      <p>
+        Luxury salon and spa concept with
+        responsive presentation and booking-focused UI.
+      </p>
+
+    </article>
+
+
+
+    <article class="project-card reveal">
+
+      <div class="browser">
+
+        <div class="browser-bar">
+          <i></i>
+          <i></i>
+          <i></i>
+          <span>star-mens-parlour</span>
+        </div>
+
+        <div class="project-screen star">
+          STAR MEN'S
+          <br>
+          PARLOUR
+          <small>PREMIUM MEN'S SALON</small>
+        </div>
+
+      </div>
+
+      <h3>Star Men's Parlour</h3>
+
+      <p>
+        Premium men's salon design with strong
+        branding, services and CTA experience.
+      </p>
+
+    </article>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================= JOURNEY ================= -->
+
+<section id="journey" class="section">
+
+  <div class="section-heading reveal">
+    MY <span>JOURNEY</span>
+  </div>
+
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <b>01</b>
+      <div>
+        <small>STARTING</small>
+        <h3>Learning Web Basics</h3>
+        <p>
+          Started exploring websites, layouts
+          and digital design.
+        </p>
       </div>
     </div>
-  </div>
-</section>
 
-<section id="cube">
-  <div class="container cube-section">
-    <div class="reveal">
-      <div class="eyebrow">02 / 3D Code Core</div>
-      <h2 style="font-size:clamp(40px,6vw,68px);margin:10px 0">CODE <span style="color:var(--orange)">CUBE</span></h2>
-      <p style="color:#999;line-height:1.8">A real 3D cube, not a flat card. All six faces contain code-themed content and the cube can be rotated by mouse or finger.</p>
+
+    <div class="timeline-item reveal">
+      <b>02</b>
+      <div>
+        <small>BUILDING</small>
+        <h3>First Projects</h3>
+        <p>
+          Built and improved real website concepts
+          using modern tools.
+        </p>
+      </div>
     </div>
-    <div class="cube-scene reveal" id="cubeScene"></div>
-  </div>
-</section>
 
-<section id="skills">
-  <div class="container">
-    <div class="section-head reveal"><div class="eyebrow">03 / Skills</div><h2>LEARNING <span>→ BUILDING</span></h2><p>No fake expertise — current skills and next steps only.</p></div>
-    <div class="skills-grid">
-      <div class="card skill reveal"><h3>Web Fundamentals</h3><p>HTML • CSS • Responsive Web Design</p><div class="bar"><i style="--w:72%"></i></div></div>
-      <div class="card skill reveal"><h3>AI-Assisted Building</h3><p>AI tools • prompting • rapid prototyping</p><div class="bar"><i style="--w:78%"></i></div></div>
-      <div class="card skill reveal"><h3>Learning Next</h3><p>JavaScript advanced • React • Three.js • Backend</p><div class="bar"><i style="--w:30%"></i></div></div>
+
+    <div class="timeline-item reveal">
+      <b>03</b>
+      <div>
+        <small>NOW</small>
+        <h3>AI + 3D Web Development</h3>
+        <p>
+          Learning interactive 3D experiences
+          and AI-assisted development.
+        </p>
+      </div>
     </div>
-  </div>
-</section>
 
-<section id="tech">
-  <div class="container">
-    <div class="section-head reveal"><div class="eyebrow">04 / Interactive Tech</div><h2>SLIM <span>3D DEVICES</span></h2><p>Real-world proportions • smooth 360° interaction • code visible on screens</p></div>
-    <div class="tech-wrap">
-      <div class="card reveal" style="padding:0;overflow:hidden"><div class="laptop-scene" id="laptopScene"></div><div style="padding:16px;color:#888">💻 Ultra-realistic slim laptop • drag to rotate</div></div>
-      <div class="card reveal" style="padding:0;overflow:hidden"><div class="phone-scene" id="phoneScene"></div><div style="padding:16px;color:#888">📱 Ultra-realistic slim smartphone • drag to rotate</div></div>
+
+    <div class="timeline-item reveal">
+      <b>04</b>
+      <div>
+        <small>NEXT</small>
+        <h3>Professional Web Developer</h3>
+        <p>
+          Keep learning, building and improving
+          every day.
+        </p>
+      </div>
     </div>
+
   </div>
+
 </section>
 
-<section id="projects">
-  <div class="container">
-    <div class="section-head reveal"><div class="eyebrow">05 / Projects</div><h2>BUILT <span>WITH AI</span></h2><p>Two real projects — presented as 3D browser experiences.</p></div>
-    <div class="projects-grid" style="grid-template-columns:1fr 1fr">
-      <article class="card project reveal">
-        <div class="project-preview"><div class="browser"><div class="browser-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="mock"><div><h4>ABHAY AURA</h4><small>Luxury Salon &amp; Spa</small></div></div></div></div>
-        <div class="project-body"><h3>Abhay Aura</h3><p>Luxury salon &amp; spa concept with premium visual presentation, services and booking CTA.</p><div class="pills"><span class="pill">Luxury UI</span><span class="pill">Responsive</span><span class="pill">AI Assisted</span></div></div>
-      </article>
-      <article class="card project reveal">
-        <div class="project-preview"><div class="browser"><div class="browser-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="mock"><div><h4>STAR MEN'S PARLOUR</h4><small>Premium Men's Salon</small></div></div></div></div>
-        <div class="project-body"><h3>Star Men's Parlour</h3><p>Black-and-gold premium men's salon design with service-focused layout and contact CTAs.</p><div class="pills"><span class="pill">Branding</span><span class="pill">Mobile First</span><span class="pill">3D UI</span></div></div>
-      </article>
-    </div>
-  </div>
-</section>
 
-<section id="journey">
-  <div class="container">
-    <div class="section-head reveal"><div class="eyebrow">06 / Journey</div><h2>LEARN. <span>BUILD.</span> IMPROVE.</h2></div>
-    <div class="journey-grid">
-      <div class="card journey reveal"><div class="num">01 / START</div><h3>Learning</h3><p>Started learning computer and web fundamentals.</p></div>
-      <div class="card journey reveal"><div class="num">02 / BUILD</div><h3>First Website</h3><p>Built a first practical website and learned through doing.</p></div>
-      <div class="card journey reveal"><div class="num">03 / IMPROVE</div><h3>Second Website</h3><p>Improved design, responsiveness and presentation.</p></div>
-      <div class="card journey reveal"><div class="num">04 / NOW</div><h3>AI + 3D Web</h3><p>Exploring AI-assisted development and interactive experiences.</p></div>
-    </div>
-  </div>
-</section>
 
-<section id="contact" class="contact">
-  <div class="container contact-grid">
+<!-- ================= CONTACT ================= -->
+
+<section id="contact" class="section contact-section">
+
+  <div class="section-heading reveal">
+    LET'S BUILD <span>SOMETHING.</span>
+  </div>
+
+  <p class="contact-intro reveal">
+    Have an idea, website concept or project?
+    Let's turn it into something real.
+  </p>
+
+
+  <div class="contact-grid">
+
     <div class="contact-info reveal">
-      <div class="eyebrow">07 / Contact</div><h2>LET'S BUILD<br><span>SOMETHING.</span></h2>
-      <p>Have an idea, website concept or project? Let's turn it into something real.</p>
-      <div class="contact-line"><b>EMAIL</b>uday847090@gmail.com</div>
-      <div class="contact-line"><b>PHONE</b>8470907072</div>
+
+      <small>EMAIL</small>
+
+      <a href="mailto:uday847090@gmail.com">
+        uday847090@gmail.com
+      </a>
+
+      <small>PHONE</small>
+
+      <a href="tel:+918470907072">
+        +91 8470907072
+      </a>
+
     </div>
-    <form class="card reveal" onsubmit="event.preventDefault();alert('Thanks! Your message form is ready. Connect it to EmailJS/WhatsApp when you want live submission.');">
-      <input class="input" placeholder="Your Name" required>
-      <input class="input" type="email" placeholder="Email" required>
-      <input class="input" placeholder="Project Type">
-      <textarea class="input" placeholder="Message"></textarea>
-      <button class="btn primary" type="submit">SEND MESSAGE →</button>
+
+
+    <form class="contact-form reveal">
+
+      <input
+        type="text"
+        placeholder="Your Name"
+        required
+      >
+
+      <input
+        type="email"
+        placeholder="Your Email"
+        required
+      >
+
+      <select>
+        <option>Project Type</option>
+        <option>Website</option>
+        <option>3D Experience</option>
+        <option>Other</option>
+      </select>
+
+      <textarea
+        placeholder="Tell me about your idea"
+        required
+      ></textarea>
+
+      <button class="primary-btn">
+        SEND MESSAGE →
+      </button>
+
     </form>
+
   </div>
+
 </section>
-</main>
+
+
+
+<!-- FOOTER -->
 
 <footer>
-  <div class="container footer-row"><div><strong>UDAY THAKUR</strong><br>AI-Assisted Web Creator</div><div>© 2026 Uday Thakur<br>Built with curiosity + AI + code.</div></div>
+
+  <h2>UDAY<span>.</span></h2>
+
+  <p>AI-Assisted Web Creator</p>
+
+  <small>
+    © 2026 Uday Thakur • Built with curiosity + AI + code.
+  </small>
+
 </footer>
-<a class="chat" href="#contact" aria-label="contact">💬</a>
 
-<script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-import { RoundedBoxGeometry } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/geometries/RoundedBoxGeometry.js";
 
-const ORANGE=0xff5a00, DARK=0x111217, DARK2=0x24272d, BLACK=0x050506;
+<!-- CHAT -->
 
-function material(color, metal=0.7, rough=.25){
-  return new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough});
-}
-function textTexture(lines, opts={}){
-  const c=document.createElement("canvas"); c.width=900;c.height=520;
-  const x=c.getContext("2d"); x.fillStyle=opts.bg||"#071014";x.fillRect(0,0,c.width,c.height);
-  x.fillStyle="#111";x.fillRect(0,0,c.width,42);
-  ["#ff5a00","#ffd24a","#25d66f"].forEach((col,i)=>{x.fillStyle=col;x.beginPath();x.arc(24+i*24,21,6,0,Math.PI*2);x.fill()});
-  x.font="700 21px monospace";
-  lines.forEach((s,i)=>{x.fillStyle=s.color||"#cfd8dc";x.fillText(s.text,25,82+i*32)});
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
-}
-function screenMesh(lines,w,h){
-  return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:textTexture(lines)}));
-}
+<div class="chat-button">
+  💬
+</div>
 
-function createLaptop(){
-  const g=new THREE.Group();
-  const base=new THREE.Mesh(new RoundedBoxGeometry(5.8,.34,3.75,.16,5),material(DARK2,.85,.2));
-  base.position.y=-1.75;g.add(base);
-  const palm=new THREE.Mesh(new RoundedBoxGeometry(5.35,.10,2.7,.08,4),material(0x30343a,.75,.24));
-  palm.position.set(0,-1.53,.15);g.add(palm);
-  const keyMat=material(0x111216,.55,.32);
-  const rows=6,cols=13;
-  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-    let key=new THREE.Mesh(new RoundedBoxGeometry(.29,.055,.27,.035,3),keyMat);
-    key.position.set((c-(cols-1)/2)*.36,-1.44,(r-2.5)*.34+.18);
-    g.add(key);
-  }
-  const track=new THREE.Mesh(new RoundedBoxGeometry(1.65,.045,.85,.12,5),material(0x1a1c20,.5,.35));
-  track.position.set(0,-1.41,1.25);g.add(track);
 
-  const hingeMat=material(0x202329,.9,.18);
-  [-1.65,1.65].forEach(x=>{let h=new THREE.Mesh(new RoundedBoxGeometry(.65,.12,.18,.06,3),hingeMat);h.position.set(x,-1.48,-1.55);g.add(h)});
+<!-- THREE.JS -->
 
-  const lid=new THREE.Mesh(new RoundedBoxGeometry(5.72,.16,3.55,.18,6),material(0x252a31,.9,.2));
-  lid.position.set(0,1.05,-1.57);lid.rotation.x=-.10;g.add(lid);
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-  const bezel=new THREE.Mesh(new RoundedBoxGeometry(5.32,.035,3.15,.12,6),material(0x07080a,.35,.22));
-  bezel.position.set(0,1.05,-1.47);bezel.rotation.x=-.10;g.add(bezel);
+<script src="script.js"></script>
 
-  const lines=[
-    {text:'const developer = "UDAY THAKUR";',color:'#ff6a19'},
-    {text:'function buildWebsite() {',color:'#20d86b'},
-    {text:'  const skills = ["HTML","CSS","JS"];',color:'#58a6ff'},
-    {text:'  return "Ideas → Reality";',color:'#ffd24a'},
-    {text:'}',color:'#20d86b'},
-    {text:'// Currently Learning & Building...',color:'#ff9b52'},
-    {text:'// AI + Web + 3D Experiences',color:'#d8dee9'},
-    {text:'',color:'#fff'},
-    {text:'<div class="future">HELLO WORLD</div>',color:'#c678dd'}
-  ];
-  const scr=screenMesh(lines,4.72,2.7);scr.position.set(0,1.06,-1.37);scr.rotation.x=-.10;g.add(scr);
-
-  // hinge/front logo detail
-  const led=new THREE.Mesh(new THREE.BoxGeometry(1.1,.025,.025),new THREE.MeshBasicMaterial({color:ORANGE}));
-  led.position.set(0,-1.34,1.88);g.add(led);
-  return g;
-}
-
-function createPhone(){
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(new RoundedBoxGeometry(2.35,.22,4.65,.23,10),material(0x1d2229,.9,.18));g.add(body);
-  const front=new THREE.Mesh(new RoundedBoxGeometry(2.12,.035,4.42,.19,10),material(0x050609,.35,.18));
-  front.position.y=.13;g.add(front);
-  const scr=screenMesh([
-    {text:'> UDAY / AI BUILDER',color:'#ff6a19'},
-    {text:'const idea = "website";',color:'#58a6ff'},
-    {text:'build(idea);',color:'#20d86b'},
-    {text:'// responsive • 3D • web',color:'#ffd24a'},
-    {text:'return "REAL";',color:'#ff9b52'}
-  ]);
-  scr.scale.set(.39,.73,.39);scr.position.y=.155;g.add(scr);
-  const cam=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.04,32),material(0x08090b,.2,.25));
-  cam.rotation.x=Math.PI/2;cam.position.set(.58,.17,1.92);g.add(cam);
-  return g;
-}
-
-function createScene(el, object, opts={}){
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(35,el.clientWidth/el.clientHeight,.1,100);
-  camera.position.set(7,4.2,9);
-  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(el.clientWidth,el.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
-  el.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff,.9));
-  const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(4,7,7);scene.add(key);
-  const rim=new THREE.PointLight(ORANGE,9,18);rim.position.set(-5,1,4);scene.add(rim);
-  const fill=new THREE.PointLight(0x4777ff,3,15);fill.position.set(5,1,-4);scene.add(fill);
-  scene.add(object);
-  object.position.y=opts.y||0; object.scale.setScalar(opts.scale||1);
-  let targetX=0,targetY=0,auto=true,drag=false,lastX=0,lastY=0;
-  const start={x:object.rotation.x,y:object.rotation.y};
-  function pointerDown(e){drag=true;auto=false;const p=e.touches?e.touches[0]:e;lastX=p.clientX;lastY=p.clientY}
-  function pointerMove(e){if(!drag)return;const p=e.touches?e.touches[0]:e;const dx=p.clientX-lastX,dy=p.clientY-lastY;lastX=p.clientX;lastY=p.clientY;targetY+=dx*.012;targetX+=dy*.008}
-  function pointerUp(){drag=false}
-  renderer.domElement.addEventListener("pointerdown",pointerDown);
-  renderer.domElement.addEventListener("pointermove",pointerMove);
-  window.addEventListener("pointerup",pointerUp);
-  renderer.domElement.addEventListener("touchstart",pointerDown,{passive:true});
-  renderer.domElement.addEventListener("touchmove",pointerMove,{passive:true});
-  renderer.domElement.addEventListener("touchend",pointerUp,{passive:true});
-  function resize(){camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();renderer.setSize(el.clientWidth,el.clientHeight)}
-  new ResizeObserver(resize).observe(el);
-  const clock=new THREE.Clock();
-  function animate(){
-    requestAnimationFrame(animate);const t=clock.getElapsedTime();
-    if(auto)targetY=start.y+t*(opts.speed||.12);
-    object.rotation.y=THREE.MathUtils.lerp(object.rotation.y,targetY,.075);
-    object.rotation.x=THREE.MathUtils.lerp(object.rotation.x,targetX,.075);
-    object.position.y=(opts.y||0)+Math.sin(t*1.2)*.08;
-    renderer.render(scene,camera);
-  }
-  animate();
-}
-
-function createCube(){
-  const g=new THREE.Group();
-  const faces=[
-    ["HTML",{text:"<section>",color:"#ff6a19"},{text:"  <h1>UDAY</h1>",color:"#58a6ff"},{text:"</section>",color:"#20d86b"}],
-    ["CSS",{text:".hero {",color:"#ff6a19"},{text:"  display: grid;",color:"#58a6ff"},{text:"}",color:"#20d86b"}],
-    ["JS",{text:"const build = () =>",color:"#ff6a19"},{text:'  "IDEAS → WEB";',color:"#ffd24a"},{text:"build();",color:"#20d86b"}],
-    ["AI",{text:"prompt → code",color:"#ff6a19"},{text:"design → motion",color:"#58a6ff"},{text:"idea → reality",color:"#20d86b"}],
-    ["UI",{text:"responsive",color:"#ff6a19"},{text:"accessible",color:"#58a6ff"},{text:"premium",color:"#ffd24a"}],
-    ["WEB",{text:"HTML + CSS",color:"#ff6a19"},{text:"JavaScript",color:"#58a6ff"},{text:"Three.js",color:"#20d86b"}]
-  ];
-  const positions=[[0,0,1.01,0,0],[0,0,-1.01,0,Math.PI],[1.01,0,0,0,Math.PI/2],[-1.01,0,0,0,-Math.PI/2],[0,1.01,0,-Math.PI/2,0],[0,-1.01,0,Math.PI/2,0]];
-  faces.forEach((f,i)=>{
-    const tex=textTexture([{text:f[0],color:"#ffffff"},...f.slice(1)]);
-    const m=new THREE.Mesh(new THREE.BoxGeometry(1.95,1.95,.06),new THREE.MeshBasicMaterial({map:tex}));
-    const p=positions[i];m.position.set(p[0],p[1],p[2]);m.rotation.set(p[3],p[4],0);g.add(m);
-  });
-  const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.03,2.03,2.03)),new THREE.LineBasicMaterial({color:ORANGE,transparent:true,opacity:.7}));
-  g.add(edge);return g;
-}
-
-createScene(document.getElementById("heroLaptop"),createLaptop(),{scale:1.05,y:-.15,speed:.10});
-createScene(document.getElementById("laptopScene"),createLaptop(),{scale:.82,y:-.05,speed:.07});
-createScene(document.getElementById("phoneScene"),createPhone(),{scale:1.0,y:0,speed:.08});
-createScene(document.getElementById("cubeScene"),createCube(),{scale:1.05,y:0,speed:.16});
-
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("show")}),{threshold:.12});
-document.querySelectorAll(".reveal").forEach(x=>io.observe(x));
-
-document.querySelector(".menu").addEventListener("click",()=>{
-  const nav=document.querySelector("nav");
-  const open=nav.style.display==="flex";
-  nav.style.display=open?"none":"flex";
-  nav.style.position="absolute";nav.style.top="76px";nav.style.right="12px";nav.style.flexDirection="column";
-  nav.style.background="#0b0b0d";nav.style.padding="18px";nav.style.border="1px solid #29292e";nav.style.borderRadius="16px";
-});
-</script>
 </body>
 </html>
