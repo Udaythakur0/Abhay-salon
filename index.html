@@ -1,535 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#050505">
+  <title>Independence Day AR Filter & Reel Maker</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
-  <title>Uday Thakur | 3D Web Creator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0f19;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-  <link rel="stylesheet" href="style.css">
+    .container {
+      position: relative;
+      width: min(90vw, 400px);
+      height: min(80vh, 710px);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(255, 153, 51, 0.4), 0 0 60px rgba(19, 136, 8, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: #000;
+    }
+
+    video { display: none; }
+    
+    canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror view */
+    }
+
+    .reel-badge {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+      z-index: 10;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    button {
+      padding: 12px 24px;
+      border-radius: 30px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .btn-record {
+      background: linear-gradient(45deg, #FF9933, #FF5722);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 87, 34, 0.5);
+    }
+    .btn-record.recording {
+      background: #ff0055;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .btn-snap {
+      background: rgba(255, 255, 255, 0.9);
+      color: #111;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); }
+      100% { transform: scale(1.05); }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- LOADER -->
-<div id="loader">
-  <div class="loader-logo">UDAY<span>.</span></div>
-  <div class="loader-line"></div>
-</div>
-
-<!-- HEADER -->
-<header class="navbar">
-
-  <a href="#home" class="logo">
-    UDAY<span>.</span>
-  </a>
-
-  <nav id="navMenu">
-    <a href="#home">Home</a>
-    <a href="#about">About</a>
-    <a href="#skills">Skills</a>
-    <a href="#tech">3D Tech</a>
-    <a href="#projects">Projects</a>
-    <a href="#journey">Journey</a>
-    <a href="#contact">Contact</a>
-  </nav>
-
-  <a href="#contact" class="talk-btn">
-    LET'S TALK
-  </a>
-
-  <button id="menuBtn" class="menu-btn">
-    ☰
-  </button>
-
-</header>
-
-
-<!-- ================= HERO ================= -->
-
-<section id="home" class="hero">
-
-  <div class="hero-content reveal">
-
-    <div class="status">
-      ⚡ CURRENTLY LEARNING • BUILDING WITH AI
+  <div class="container">
+    <div class="reel-badge">🇮🇳 15 AUG LIVE AR REEL</div>
+    <video id="webcam" playsinline></video>
+    <canvas id="output_canvas"></canvas>
+    
+    <div class="controls">
+      <button class="btn-snap" id="snapBtn">📸 Photo Snap</button>
+      <button class="btn-record" id="recordBtn">🎥 Record Reel</button>
     </div>
-
-    <div class="identity">
-
-      <div class="avatar">
-        <img src="assets/uday.jpg" alt="Uday Thakur">
-      </div>
-
-      <div class="creator-tag">
-        UDAY / CREATOR
-      </div>
-
-    </div>
-
-    <h1>
-      UDAY
-      <br>
-      <span>THAKUR</span>
-    </h1>
-
-    <p>
-      I’m learning web development and using AI to turn ideas
-      into interactive digital experiences.
-    </p>
-
-    <div class="hero-buttons">
-
-      <a href="#projects" class="primary-btn">
-        View Projects ↗
-      </a>
-
-      <a href="#contact" class="secondary-btn">
-        Contact Me
-      </a>
-
-    </div>
-
   </div>
 
-
-  <!-- HERO LAPTOP -->
-
-  <div class="three-stage hero-laptop reveal">
-
-    <canvas id="heroLaptop"></canvas>
-
-    <div class="interaction-hint">
-      💻 Touch & Drag to rotate
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= ABOUT ================= -->
-
-<section id="about" class="section">
-
-  <div class="section-heading reveal">
-    ABOUT <span>ME</span>
-  </div>
-
-  <div class="about-box reveal">
-
-    <div>
-
-      <h2>Who I Am</h2>
-
-      <p>
-        Hi! I am <strong>Uday Thakur.</strong>
-        I am currently pursuing O Level computer courses
-        and continuously expanding my skills in modern
-        Web Development.
-      </p>
-
-      <p>
-        I use modern AI tools to turn ideas into websites,
-        interactive designs and 3D digital experiences.
-      </p>
-
-    </div>
-
-    <div class="about-stats">
-
-      <strong>02+</strong>
-      <small>WEB PROJECTS</small>
-
-      <strong>O LEVEL</strong>
-      <small>CURRENTLY LEARNING</small>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= SKILLS ================= -->
-
-<section id="skills" class="section">
-
-  <div class="section-heading reveal">
-    SKILLS <span>& LEARNING</span>
-  </div>
-
-  <div class="skill-grid">
-
-    <div class="skill-card reveal">
-      <small>LEARNING</small>
-      <h3>HTML • CSS • JavaScript</h3>
-      <p>
-        Web structure, responsive layouts,
-        interfaces and modern web fundamentals.
-      </p>
-    </div>
-
-    <div class="skill-card reveal">
-      <small>WORKING WITH</small>
-      <h3>AI • Acode • GitHub</h3>
-      <p>
-        AI-assisted coding, design exploration
-        and real project building.
-      </p>
-    </div>
-
-    <div class="skill-card reveal">
-      <small>LEARNING NEXT</small>
-      <h3>Three.js • React • Backend</h3>
-      <p>
-        Growing toward advanced interactive
-        web development.
-      </p>
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= 3D TECH ================= -->
-
-<section id="tech" class="section tech-section">
-
-  <div class="section-heading reveal">
-    INTERACTIVE <span>3D TECH</span>
-  </div>
-
-  <p class="section-subtitle reveal">
-    Ultra-realistic slim devices • 360° Interactive
-  </p>
-
-
-  <!-- LAPTOP -->
-
-  <div class="device-section reveal">
-
-    <h2>
-      HD <span>LAPTOP</span>
-    </h2>
-
-    <p>
-      Ultra-realistic slim laptop
-    </p>
-
-    <div class="three-stage">
-
-      <canvas id="techLaptop"></canvas>
-
-      <div class="interaction-hint">
-        💻 Touch & Drag to rotate
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- MOBILE -->
-
-  <div class="device-section reveal">
-
-    <h2>
-      SLIM <span>SMARTPHONE</span>
-    </h2>
-
-    <p>
-      Ultra-realistic slim smartphone
-    </p>
-
-    <div class="three-stage phone-stage">
-
-      <canvas id="phone"></canvas>
-
-      <div class="interaction-hint">
-        📱 Touch & Drag to rotate
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- CUBE -->
-
-  <div class="device-section reveal">
-
-    <h2>
-      3D <span>CODE CUBE</span>
-    </h2>
-
-    <p>
-      HTML • CSS • JS • AI • UI • WEB
-    </p>
-
-    <div class="three-stage cube-stage">
-
-      <canvas id="cube"></canvas>
-
-      <div class="interaction-hint">
-        🧊 Touch & Drag to rotate
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= PROJECTS ================= -->
-
-<section id="projects" class="section">
-
-  <div class="section-heading reveal">
-    FEATURED <span>PROJECTS</span>
-  </div>
-
-  <div class="project-grid">
-
-
-    <article class="project-card reveal">
-
-      <div class="browser">
-
-        <div class="browser-bar">
-          <i></i>
-          <i></i>
-          <i></i>
-          <span>abhay-aura</span>
-        </div>
-
-        <div class="project-screen aura">
-          ABHAY AURA
-          <small>SALON • SPA • BOOKING</small>
-        </div>
-
-      </div>
-
-      <h3>Abhay Aura</h3>
-
-      <p>
-        Luxury salon and spa concept with
-        responsive presentation and booking-focused UI.
-      </p>
-
-    </article>
-
-
-
-    <article class="project-card reveal">
-
-      <div class="browser">
-
-        <div class="browser-bar">
-          <i></i>
-          <i></i>
-          <i></i>
-          <span>star-mens-parlour</span>
-        </div>
-
-        <div class="project-screen star">
-          STAR MEN'S
-          <br>
-          PARLOUR
-          <small>PREMIUM MEN'S SALON</small>
-        </div>
-
-      </div>
-
-      <h3>Star Men's Parlour</h3>
-
-      <p>
-        Premium men's salon design with strong
-        branding, services and CTA experience.
-      </p>
-
-    </article>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= JOURNEY ================= -->
-
-<section id="journey" class="section">
-
-  <div class="section-heading reveal">
-    MY <span>JOURNEY</span>
-  </div>
-
-  <div class="timeline">
-
-    <div class="timeline-item reveal">
-      <b>01</b>
-      <div>
-        <small>STARTING</small>
-        <h3>Learning Web Basics</h3>
-        <p>
-          Started exploring websites, layouts
-          and digital design.
-        </p>
-      </div>
-    </div>
-
-
-    <div class="timeline-item reveal">
-      <b>02</b>
-      <div>
-        <small>BUILDING</small>
-        <h3>First Projects</h3>
-        <p>
-          Built and improved real website concepts
-          using modern tools.
-        </p>
-      </div>
-    </div>
-
-
-    <div class="timeline-item reveal">
-      <b>03</b>
-      <div>
-        <small>NOW</small>
-        <h3>AI + 3D Web Development</h3>
-        <p>
-          Learning interactive 3D experiences
-          and AI-assisted development.
-        </p>
-      </div>
-    </div>
-
-
-    <div class="timeline-item reveal">
-      <b>04</b>
-      <div>
-        <small>NEXT</small>
-        <h3>Professional Web Developer</h3>
-        <p>
-          Keep learning, building and improving
-          every day.
-        </p>
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-
-
-<!-- ================= CONTACT ================= -->
-
-<section id="contact" class="section contact-section">
-
-  <div class="section-heading reveal">
-    LET'S BUILD <span>SOMETHING.</span>
-  </div>
-
-  <p class="contact-intro reveal">
-    Have an idea, website concept or project?
-    Let's turn it into something real.
-  </p>
-
-
-  <div class="contact-grid">
-
-    <div class="contact-info reveal">
-
-      <small>EMAIL</small>
-
-      <a href="mailto:uday847090@gmail.com">
-        uday847090@gmail.com
-      </a>
-
-      <small>PHONE</small>
-
-      <a href="tel:+918470907072">
-        +91 8470907072
-      </a>
-
-    </div>
-
-
-    <form class="contact-form reveal">
-
-      <input
-        type="text"
-        placeholder="Your Name"
-        required
-      >
-
-      <input
-        type="email"
-        placeholder="Your Email"
-        required
-      >
-
-      <select>
-        <option>Project Type</option>
-        <option>Website</option>
-        <option>3D Experience</option>
-        <option>Other</option>
-      </select>
-
-      <textarea
-        placeholder="Tell me about your idea"
-        required
-      ></textarea>
-
-      <button class="primary-btn">
-        SEND MESSAGE →
-      </button>
-
-    </form>
-
-  </div>
-
-</section>
-
-
-
-<!-- FOOTER -->
-
-<footer>
-
-  <h2>UDAY<span>.</span></h2>
-
-  <p>AI-Assisted Web Creator</p>
-
-  <small>
-    © 2026 Uday Thakur • Built with curiosity + AI + code.
-  </small>
-
-</footer>
-
-
-<!-- CHAT -->
-
-<div class="chat-button">
-  💬
-</div>
-
-
-<!-- THREE.JS -->
-
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
-<script src="script.js"></script>
-
+  <script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('output_canvas');
+    const ctx = canvas.getContext('2d');
+    const recordBtn = document.getElementById('recordBtn');
+    const snapBtn = document.getElementById('snapBtn');
+
+    canvas.width = 720;
+    canvas.height = 1280;
+
+    let mediaRecorder;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    // MediaPipe FaceMesh Setup
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await faceMesh.send({ image: video });
+      },
+      width: 720,
+      height: 1280
+    });
+    camera.start();
+
+    // Draw Flag Paint on Cheeks
+    function drawTricolor(ctx, pt, size) {
+      const h = size / 3;
+      const w = size * 1.5;
+
+      // Saffron
+      ctx.fillStyle = '#FF9933';
+      ctx.fillRect(pt.x - w/2, pt.y - size/2, w, h);
+
+      // White
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(pt.x - w/2, pt.y - size/2 + h, w, h);
+
+      // Green
+      ctx.fillStyle = '#138808';
+      ctx.fillRect(pt.x - w/2, pt.y - size/2 + h*2, w, h);
+
+      // Ashoka Chakra dot
+      ctx.fillStyle = '#000080';
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, h/3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function onResults(results) {
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+
+        // Left & Right Cheek Landmarks
+        const leftCheek = { x: landmarks[234].x * canvas.width, y: landmarks[234].y * canvas.height };
+        const rightCheek = { x: landmarks[454].x * canvas.width, y: landmarks[454].y * canvas.height };
+
+        // Draw AR Cheek Flags
+        drawTricolor(ctx, leftCheek, 45);
+        drawTricolor(ctx, rightCheek, 45);
+      }
+
+      // Reel Overlay Borders & Independence Day Branding
+      ctx.strokeStyle = '#FF9933';
+      ctx.lineWidth = 14;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+      // Footer Banner
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
+
+      ctx.font = 'bold 44px sans-serif';
+      ctx.fillStyle = '#FF9933';
+      ctx.textAlign = 'center';
+      ctx.fillText('VANDE MATARAM', canvas.width / 2, canvas.height - 110);
+
+      ctx.font = '28px sans-serif';
+      ctx.fillStyle = '#138808';
+      ctx.fillText('HAPPY INDEPENDENCE DAY', canvas.width / 2, canvas.height - 60);
+
+      ctx.restore();
+    }
+
+    // Photo Snapshot
+    snapBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'independence-day-snap.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+
+    // 1-Click Video / Reel Recording
+    recordBtn.addEventListener('click', () => {
+      if (!isRecording) {
+        recordedChunks = [];
+        const stream = canvas.captureStream(30);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'independence-day-reel.webm';
+          a.click();
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.innerText = '⏹ Stop & Download';
+        recordBtn.classList.add('recording');
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.innerText = '🎥 Record Reel';
+        recordBtn.classList.remove('recording');
+      }
+    });
+  </script>
 </body>
 </html>
