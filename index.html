@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Independence Day AR Filter & Reel Maker</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
-
+  <title>15 Aug Live AR Reel Maker</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0b0f19;
+      background: #000;
       color: #fff;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,217 +17,207 @@
       min-height: 100vh;
       overflow: hidden;
     }
-
-    .container {
+    .wrapper {
       position: relative;
-      width: min(90vw, 400px);
-      height: min(80vh, 710px);
-      border-radius: 24px;
+      width: min(92vw, 420px);
+      height: min(85vh, 750px);
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 0 40px rgba(255, 153, 51, 0.4), 0 0 60px rgba(19, 136, 8, 0.3);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      background: #000;
+      box-shadow: 0 0 35px rgba(255, 153, 51, 0.4);
+      border: 3px solid #ff9933;
+      background: #111;
     }
-
     video { display: none; }
-    
     canvas {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* Mirror view */
     }
-
-    .reel-badge {
+    .top-bar {
       position: absolute;
-      top: 18px;
-      left: 18px;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .badge {
+      background: rgba(0, 0, 0, 0.65);
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      letter-spacing: 1px;
-      z-index: 10;
+      border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(8px);
     }
-
     .controls {
       position: absolute;
       bottom: 20px;
       width: 100%;
       display: flex;
       justify-content: center;
-      align-items: center;
       gap: 15px;
       z-index: 10;
     }
-
     button {
-      padding: 12px 24px;
+      padding: 12px 22px;
       border-radius: 30px;
       border: none;
-      font-weight: 700;
+      font-weight: bold;
       cursor: pointer;
       font-size: 0.95rem;
-      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
-
-    .btn-record {
-      background: linear-gradient(45deg, #FF9933, #FF5722);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(255, 87, 34, 0.5);
-    }
-    .btn-record.recording {
-      background: #ff0055;
-      animation: pulse 1s infinite alternate;
-    }
-
-    .btn-snap {
-      background: rgba(255, 255, 255, 0.9);
-      color: #111;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.95); }
-      100% { transform: scale(1.05); }
-    }
+    .btn-snap { background: #fff; color: #000; }
+    .btn-rec { background: linear-gradient(45deg, #FF9933, #FF3D00); color: #fff; }
+    .recording { background: #ff0055 !important; animation: blink 1s infinite alternate; }
+    @keyframes blink { 0% { opacity: 0.7; } 100% { opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="reel-badge">🇮🇳 15 AUG LIVE AR REEL</div>
-    <video id="webcam" playsinline></video>
-    <canvas id="output_canvas"></canvas>
+  <div class="wrapper">
+    <div class="top-bar">
+      <div class="badge">🇮🇳 15 AUG LIVE AR FILTER</div>
+    </div>
     
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="c"></canvas>
+
     <div class="controls">
       <button class="btn-snap" id="snapBtn">📸 Photo Snap</button>
-      <button class="btn-record" id="recordBtn">🎥 Record Reel</button>
+      <button class="btn-rec" id="recBtn">🎥 Record Reel</button>
     </div>
   </div>
 
   <script>
-    const video = document.getElementById('webcam');
-    const canvas = document.getElementById('output_canvas');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
-    const recordBtn = document.getElementById('recordBtn');
     const snapBtn = document.getElementById('snapBtn');
+    const recBtn = document.getElementById('recBtn');
 
     canvas.width = 720;
     canvas.height = 1280;
 
     let mediaRecorder;
-    let recordedChunks = [];
+    let chunks = [];
     let isRecording = false;
+    let particles = [];
 
-    // MediaPipe FaceMesh Setup
-    const faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
-
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
-
-    faceMesh.onResults(onResults);
-
-    const camera = new Camera(video, {
-      onFrame: async () => {
-        await faceMesh.send({ image: video });
-      },
-      width: 720,
-      height: 1280
-    });
-    camera.start();
-
-    // Draw Flag Paint on Cheeks
-    function drawTricolor(ctx, pt, size) {
-      const h = size / 3;
-      const w = size * 1.5;
-
-      // Saffron
-      ctx.fillStyle = '#FF9933';
-      ctx.fillRect(pt.x - w/2, pt.y - size/2, w, h);
-
-      // White
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(pt.x - w/2, pt.y - size/2 + h, w, h);
-
-      // Green
-      ctx.fillStyle = '#138808';
-      ctx.fillRect(pt.x - w/2, pt.y - size/2 + h*2, w, h);
-
-      // Ashoka Chakra dot
-      ctx.fillStyle = '#000080';
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, h/3, 0, Math.PI * 2);
-      ctx.fill();
+    // Falling Tiranga Petals/Confetti
+    for (let i = 0; i < 35; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 5 + 3,
+        d: Math.random() * 2 + 1,
+        color: ['#FF9933', '#FFFFFF', '#138808'][Math.floor(Math.random() * 3)]
+      });
     }
 
-    function onResults(results) {
+    // Start Front Camera
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    }).then(stream => {
+      video.srcObject = stream;
+      video.play();
+    }).catch(err => {
+      alert("Camera open nahi ho paya: " + err.name);
+    });
+
+    function drawFlagCheek(x, y, w, h, angle) {
       ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-        const landmarks = results.multiFaceLandmarks[0];
-
-        // Left & Right Cheek Landmarks
-        const leftCheek = { x: landmarks[234].x * canvas.width, y: landmarks[234].y * canvas.height };
-        const rightCheek = { x: landmarks[454].x * canvas.width, y: landmarks[454].y * canvas.height };
-
-        // Draw AR Cheek Flags
-        drawTricolor(ctx, leftCheek, 45);
-        drawTricolor(ctx, rightCheek, 45);
-      }
-
-      // Reel Overlay Borders & Independence Day Branding
-      ctx.strokeStyle = '#FF9933';
-      ctx.lineWidth = 14;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-      // Footer Banner
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
-
-      ctx.font = 'bold 44px sans-serif';
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      
+      const barH = h / 3;
+      // Saffron
       ctx.fillStyle = '#FF9933';
-      ctx.textAlign = 'center';
-      ctx.fillText('VANDE MATARAM', canvas.width / 2, canvas.height - 110);
-
-      ctx.font = '28px sans-serif';
+      ctx.fillRect(-w/2, -h/2, w, barH);
+      // White
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(-w/2, -h/2 + barH, w, barH);
+      // Green
       ctx.fillStyle = '#138808';
-      ctx.fillText('HAPPY INDEPENDENCE DAY', canvas.width / 2, canvas.height - 60);
+      ctx.fillRect(-w/2, -h/2 + barH*2, w, barH);
+      // Ashoka Chakra
+      ctx.fillStyle = '#000080';
+      ctx.beginPath();
+      ctx.arc(0, 0, barH/2.5, 0, Math.PI * 2);
+      ctx.fill();
 
       ctx.restore();
     }
 
-    // Photo Snapshot
+    function render() {
+      // Mirror & Draw Video Feed
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // Live AR Cheek Filters (Anchored around portrait face zone)
+      drawFlagCheek(canvas.width * 0.32, canvas.height * 0.44, 75, 45, -0.15);
+      drawFlagCheek(canvas.width * 0.68, canvas.height * 0.44, 75, 45, 0.15);
+
+      // Falling Patriotic Particles
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.y += p.d * 2;
+        p.x += Math.sin(p.y * 0.02) * 1.5;
+        if (p.y > canvas.height) p.y = -10;
+      });
+
+      // Bottom Glowing Banner
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
+
+      ctx.font = '900 46px system-ui, sans-serif';
+      ctx.fillStyle = '#FF9933';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#FF9933';
+      ctx.shadowBlur = 15;
+      ctx.fillText('VANDE MATARAM', canvas.width / 2, canvas.height - 105);
+
+      ctx.font = '700 30px system-ui, sans-serif';
+      ctx.fillStyle = '#138808';
+      ctx.shadowColor = '#138808';
+      ctx.shadowBlur = 15;
+      ctx.fillText('HAPPY INDEPENDENCE DAY', canvas.width / 2, canvas.height - 55);
+      ctx.shadowBlur = 0;
+
+      requestAnimationFrame(render);
+    }
+
+    video.addEventListener('loadedmetadata', () => {
+      render();
+    });
+
+    // Instant Photo Snap
     snapBtn.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'independence-day-snap.png';
-      link.href = canvas.toDataURL();
-      link.click();
+      const a = document.createElement('a');
+      a.download = 'independence-day-snap.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
     });
 
     // 1-Click Video / Reel Recording
-    recordBtn.addEventListener('click', () => {
+    recBtn.addEventListener('click', () => {
       if (!isRecording) {
-        recordedChunks = [];
+        chunks = [];
         const stream = canvas.captureStream(30);
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) recordedChunks.push(e.data);
-        };
-
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
         mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const blob = new Blob(chunks, { type: 'video/webm' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
@@ -241,13 +227,13 @@
 
         mediaRecorder.start();
         isRecording = true;
-        recordBtn.innerText = '⏹ Stop & Download';
-        recordBtn.classList.add('recording');
+        recBtn.innerText = '⏹ Stop & Save';
+        recBtn.classList.add('recording');
       } else {
         mediaRecorder.stop();
         isRecording = false;
-        recordBtn.innerText = '🎥 Record Reel';
-        recordBtn.classList.remove('recording');
+        recBtn.innerText = '🎥 Record Reel';
+        recBtn.classList.remove('recording');
       }
     });
   </script>
