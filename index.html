@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>15 Aug Live AR Reel Maker</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,19 +19,23 @@
     }
     .wrapper {
       position: relative;
-      width: min(92vw, 420px);
-      height: min(85vh, 750px);
-      border-radius: 20px;
+      width: min(100vw, 420px);
+      height: min(100vh, 760px);
       overflow: hidden;
-      box-shadow: 0 0 35px rgba(255, 153, 51, 0.4);
-      border: 3px solid #ff9933;
       background: #111;
     }
-    video { display: none; }
+    video {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
     canvas {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
     .top-bar {
       position: absolute;
@@ -52,9 +56,20 @@
       border: 1px solid rgba(255,255,255,0.3);
       backdrop-filter: blur(8px);
     }
+    .btn-icon {
+      background: rgba(0,0,0,0.65);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
     .controls {
       position: absolute;
-      bottom: 20px;
+      bottom: 25px;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -62,17 +77,29 @@
       z-index: 10;
     }
     button {
-      padding: 12px 22px;
+      padding: 12px 20px;
       border-radius: 30px;
       border: none;
       font-weight: bold;
       cursor: pointer;
       font-size: 0.95rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
     .btn-snap { background: #fff; color: #000; }
     .btn-rec { background: linear-gradient(45deg, #FF9933, #FF3D00); color: #fff; }
     .recording { background: #ff0055 !important; animation: blink 1s infinite alternate; }
+    #statusMsg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ff9933;
+      font-size: 1rem;
+      text-align: center;
+      z-index: 5;
+      pointer-events: none;
+      padding: 20px;
+    }
     @keyframes blink { 0% { opacity: 0.7; } 100% { opacity: 1; } }
   </style>
 </head>
@@ -80,15 +107,18 @@
 
   <div class="wrapper">
     <div class="top-bar">
-      <div class="badge">🇮🇳 15 AUG LIVE AR FILTER</div>
+      <div class="badge">🇮🇳 15 AUG AR REEL</div>
+      <button class="btn-icon" id="flipBtn">🔄 Flip Cam</button>
     </div>
-    
+
+    <div id="statusMsg">Camera start ho raha hai...</div>
+
     <video id="video" autoplay playsinline muted></video>
     <canvas id="c"></canvas>
 
     <div class="controls">
-      <button class="btn-snap" id="snapBtn">📸 Photo Snap</button>
-      <button class="btn-rec" id="recBtn">🎥 Record Reel</button>
+      <button class="btn-snap" id="snapBtn">📸 Snap</button>
+      <button class="btn-rec" id="recBtn">🎥 Record</button>
     </div>
   </div>
 
@@ -98,53 +128,83 @@
     const ctx = canvas.getContext('2d');
     const snapBtn = document.getElementById('snapBtn');
     const recBtn = document.getElementById('recBtn');
+    const flipBtn = document.getElementById('flipBtn');
+    const statusMsg = document.getElementById('statusMsg');
 
-    canvas.width = 720;
-    canvas.height = 1280;
-
+    let currentStream = null;
+    let facingMode = 'user'; // 'user' = Front, 'environment' = Back
     let mediaRecorder;
     let chunks = [];
     let isRecording = false;
     let particles = [];
 
-    // Falling Tiranga Petals/Confetti
+    // Setup Falling Confetti
     for (let i = 0; i < 35; i++) {
       particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * 720,
+        y: Math.random() * 1280,
         r: Math.random() * 5 + 3,
-        d: Math.random() * 2 + 1,
+        d: Math.random() * 2 + 1.5,
         color: ['#FF9933', '#FFFFFF', '#138808'][Math.floor(Math.random() * 3)]
       });
     }
 
-    // Start Front Camera
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    }).then(stream => {
-      video.srcObject = stream;
-      video.play();
-    }).catch(err => {
-      alert("Camera open nahi ho paya: " + err.name);
+    // Initialize / Switch Camera
+    async function startCamera() {
+      statusMsg.innerText = "Camera open ho raha hai...";
+      statusMsg.style.display = 'block';
+
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+
+      const constraints = {
+        video: {
+          facingMode: facingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
+        video.srcObject = stream;
+        
+        // Ensure video plays on mobile browsers
+        await video.play();
+
+        canvas.width = 720;
+        canvas.height = 1280;
+        statusMsg.style.display = 'none';
+        
+        drawLoop();
+      } catch (err) {
+        statusMsg.innerText = "Error: " + err.name + " - " + err.message + "\nSite settings me camera check karein.";
+      }
+    }
+
+    // Flip Camera Toggle
+    flipBtn.addEventListener('click', () => {
+      facingMode = (facingMode === 'user') ? 'environment' : 'user';
+      startCamera();
     });
 
+    // Draw Flag on Cheeks
     function drawFlagCheek(x, y, w, h, angle) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle);
-      
       const barH = h / 3;
-      // Saffron
+
       ctx.fillStyle = '#FF9933';
       ctx.fillRect(-w/2, -h/2, w, barH);
-      // White
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(-w/2, -h/2 + barH, w, barH);
-      // Green
       ctx.fillStyle = '#138808';
       ctx.fillRect(-w/2, -h/2 + barH*2, w, barH);
-      // Ashoka Chakra
+
       ctx.fillStyle = '#000080';
       ctx.beginPath();
       ctx.arc(0, 0, barH/2.5, 0, Math.PI * 2);
@@ -153,54 +213,62 @@
       ctx.restore();
     }
 
-    function render() {
-      // Mirror & Draw Video Feed
-      ctx.save();
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-      ctx.restore();
+    // Continuous Render Loop
+    function drawLoop() {
+      if (video.readyState >= video.HAVE_CURRENT_DATA) {
+        // Draw Camera Feed
+        ctx.save();
+        if (facingMode === 'user') {
+          ctx.scale(-1, 1);
+          ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        } else {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
+        ctx.restore();
 
-      // Live AR Cheek Filters (Anchored around portrait face zone)
-      drawFlagCheek(canvas.width * 0.32, canvas.height * 0.44, 75, 45, -0.15);
-      drawFlagCheek(canvas.width * 0.68, canvas.height * 0.44, 75, 45, 0.15);
+        // Draw AR Cheek Flags (Front camera only)
+        if (facingMode === 'user') {
+          drawFlagCheek(canvas.width * 0.32, canvas.height * 0.44, 75, 45, -0.15);
+          drawFlagCheek(canvas.width * 0.68, canvas.height * 0.44, 75, 45, 0.15);
+        }
 
-      // Falling Patriotic Particles
-      particles.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-        p.y += p.d * 2;
-        p.x += Math.sin(p.y * 0.02) * 1.5;
-        if (p.y > canvas.height) p.y = -10;
-      });
+        // Falling Confetti
+        particles.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+          p.y += p.d * 2;
+          p.x += Math.sin(p.y * 0.02) * 1.5;
+          if (p.y > canvas.height) p.y = -10;
+        });
 
-      // Bottom Glowing Banner
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
+        // Bottom Banner Overlay
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
 
-      ctx.font = '900 46px system-ui, sans-serif';
-      ctx.fillStyle = '#FF9933';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = '#FF9933';
-      ctx.shadowBlur = 15;
-      ctx.fillText('VANDE MATARAM', canvas.width / 2, canvas.height - 105);
+        ctx.font = '900 46px system-ui, sans-serif';
+        ctx.fillStyle = '#FF9933';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#FF9933';
+        ctx.shadowBlur = 15;
+        ctx.fillText('VANDE MATARAM', canvas.width / 2, canvas.height - 105);
 
-      ctx.font = '700 30px system-ui, sans-serif';
-      ctx.fillStyle = '#138808';
-      ctx.shadowColor = '#138808';
-      ctx.shadowBlur = 15;
-      ctx.fillText('HAPPY INDEPENDENCE DAY', canvas.width / 2, canvas.height - 55);
-      ctx.shadowBlur = 0;
+        ctx.font = '700 30px system-ui, sans-serif';
+        ctx.fillStyle = '#138808';
+        ctx.shadowColor = '#138808';
+        ctx.shadowBlur = 15;
+        ctx.fillText('HAPPY INDEPENDENCE DAY', canvas.width / 2, canvas.height - 55);
+        ctx.shadowBlur = 0;
+      }
 
-      requestAnimationFrame(render);
+      requestAnimationFrame(drawLoop);
     }
 
-    video.addEventListener('loadedmetadata', () => {
-      render();
-    });
+    // Start on load
+    window.addEventListener('DOMContentLoaded', startCamera);
 
-    // Instant Photo Snap
+    // Snap Photo
     snapBtn.addEventListener('click', () => {
       const a = document.createElement('a');
       a.download = 'independence-day-snap.png';
@@ -208,7 +276,7 @@
       a.click();
     });
 
-    // 1-Click Video / Reel Recording
+    // Record Video
     recBtn.addEventListener('click', () => {
       if (!isRecording) {
         chunks = [];
@@ -232,7 +300,7 @@
       } else {
         mediaRecorder.stop();
         isRecording = false;
-        recBtn.innerText = '🎥 Record Reel';
+        recBtn.innerText = '🎥 Record';
         recBtn.classList.remove('recording');
       }
     });
